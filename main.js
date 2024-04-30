@@ -1,8 +1,14 @@
-// profiles[3].members.6994c547f53e4107ace4a0bb48609bb5.leveling.experience
+const WebSocket = require("ws");
+const ws = new WebSocket("ws://localhost:1439/message");
 
+ws.on("open", () => {
+    console.log("Connected");
+});
 
+ws.on("close", () => {
+    console.log("Disconnected");
+});
 
-// maybe player_data
 async function guildCall() {
     const response = await fetch(`https://api.hypixel.net/v2/guild?id=5fea32eb8ea8c9724b8e3f3c`, {
         method: "GET",
@@ -23,7 +29,6 @@ async function getProfiles(uuid) {
             },
         });
         return await response.json();
-        // await console.log(body.profiles[3].members["6994c547f53e4107ace4a0bb48609bb5"].leveling.experience);
     } catch (e) {
         return;
     }
@@ -59,33 +64,40 @@ async function main() {
         const highest = await getHighest(playerData[i])
         playerData[i] = { ...playerData[i], "level": highest }
     }
-    playerData.sort((a,b) => b.level - a.level);
+    playerData.sort((a, b) => b.level - a.level);
     const toChange = [];
     for (let i = 0; i < 5; i++) {
         if (playerData[i].rank === "Skyblock God") continue;
-        toChange.push({"uuid": playerData[i].uuid, "rank": "Skyblock God"});
+        toChange.push({ "uuid": playerData[i].uuid, "rank": "Skyblock God" });
     }
     for (let i = 5; i < 20; i++) {
         if (playerData[i].rank === "Skyblock King") continue;
-        toChange.push({"uuid": playerData[i].uuid, "rank": "Skyblock King"})
+        toChange.push({ "uuid": playerData[i].uuid, "rank": "Skyblock King" })
     }
     for (let i = 20; i < 60; i++) {
         if (playerData[i].rank === "Elite") continue;
-        toChange.push({"uuid": playerData[i].uuid, "rank": "Elite"})
+        toChange.push({ "uuid": playerData[i].uuid, "rank": "Elite" })
     }
     for (let i = 60; i < playerData.length; i++) {
         if (playerData[i].rank === "Member") continue;
-        toChange.push({"uuid": playerData[i].uuid, "rank": "Member"})
+        toChange.push({ "uuid": playerData[i].uuid, "rank": "Member" })
     }
 
-
-    console.log(toChange);
-    console.log(toChange.length);
-
-    // let uuid = "6994c547f53e4107ace4a0bb48609bb5";
-    // const profiles = getJSON(uuid);
+    for (let i = 0; i < toChange.length; i++) {
+        new Promise((resolve) => {
+            if (ws.readyState === ws.OPEN) {
+                resolve();
+            }
+        }).then(() => {
+            const send = {
+                type: "message",
+                data: `/g setrank ${toChange[i].uuid} ${toChange[i].rank}`,
+                token: "topsecretkey",
+            };
+            ws.send(JSON.stringify(send));
+        });
+    }
 }
-
 
 main();
 
