@@ -89,12 +89,14 @@ async function main() {
                 resolve();
             }
         }).then(() => {
-            const send = {
-                type: "message",
-                data: `/g setrank ${toChange[i].uuid} ${toChange[i].rank}`,
-                token: "topsecretkey",
-            };
-            ws.send(JSON.stringify(send));
+            setTimeout(() => {
+                const send = {
+                    type: "message",
+                    data: `/g setrank ${toChange[i].uuid} ${toChange[i].rank}`,
+                    token: "topsecretkey",
+                };
+                ws.send(JSON.stringify(send));
+            }, 500 * i);
         });
     }
 }
