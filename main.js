@@ -1,5 +1,6 @@
 const WebSocket = require("ws");
 const ws = new WebSocket("ws://localhost:1439/message");
+const {hypixelApi, wskey} = require("./config.json")
 
 ws.on("open", () => {
     console.log("Connected");
@@ -13,7 +14,7 @@ async function guildCall() {
     const response = await fetch(`https://api.hypixel.net/v2/guild?id=5fea32eb8ea8c9724b8e3f3c`, {
         method: "GET",
         headers: {
-            "Api-Key": "e48ec7a3-df20-409c-954e-f4537044cce1"
+            "Api-Key": hypixelApi
         },
     });
     const data = await response.json();
@@ -25,7 +26,7 @@ async function getProfiles(uuid) {
         const response = await fetch(`https://api.hypixel.net/v2/skyblock/profiles?uuid=${uuid}`, {
             method: "GET",
             headers: {
-                "Api-Key": "e48ec7a3-df20-409c-954e-f4537044cce1"
+                "Api-Key": hypixelApi
             },
         });
         return await response.json();
@@ -93,7 +94,7 @@ async function main() {
                 const send = {
                     type: "message",
                     data: `/g setrank ${toChange[i].uuid} ${toChange[i].rank}`,
-                    token: "topsecretkey",
+                    token: wskey
                 };
                 ws.send(JSON.stringify(send));
             }, 500 * i);
